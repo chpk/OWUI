@@ -5,6 +5,12 @@
 	import DOMPurify from 'dompurify';
 	import { marked } from 'marked';
 
+	// Configure DOMPurify to allow scripts for HTML banners
+	const htmlConfig = {
+		ADD_TAGS: ['script'],
+		ADD_ATTR: ['async', 'defer', 'src', 'type']
+	};
+
 	const dispatch = createEventDispatcher();
 
 	export let banner: Banner = {
@@ -25,7 +31,8 @@
 		info: 'bg-blue-500/20 text-blue-700 dark:text-blue-200 ',
 		success: 'bg-green-500/20 text-green-700 dark:text-green-200',
 		warning: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-200',
-		error: 'bg-red-500/20 text-red-700 dark:text-red-200'
+		error: 'bg-red-500/20 text-red-700 dark:text-red-200',
+		html: 'bg-violet-500/20 text-violet-700 dark:text-violet-200'
 	};
 
 	const dismiss = (id) => {
@@ -40,10 +47,13 @@
 
 {#if !dismissed}
 	{#if mounted}
-		<div
-			class=" top-0 left-0 right-0 p-2 mx-4 px-3 flex justify-center items-center relative rounded-xl border border-gray-100 dark:border-gray-850 text-gray-800 dark:text-gary-100 bg-white dark:bg-gray-900 backdrop-blur-xl z-30"
-			transition:fade={{ delay: 100, duration: 300 }}
-		>
+		{#if banner.type === 'html'}
+			{@html DOMPurify.sanitize(banner.content, htmlConfig)}
+		{:else}
+			<div
+				class=" top-0 left-0 right-0 p-2 mx-4 px-3 flex justify-center items-center relative rounded-xl border border-gray-100 dark:border-gray-850 text-gray-800 dark:text-gary-100 bg-white dark:bg-gray-900 backdrop-blur-xl z-30"
+				transition:fade={{ delay: 100, duration: 300 }}
+			>
 			<div class=" flex flex-col md:flex-row md:items-center flex-1 text-sm w-fit gap-1.5">
 				<div class="flex justify-between self-start">
 					<div
@@ -123,6 +133,7 @@
 					>
 				{/if}
 			</div>
-		</div>
+			</div>
+		{/if}
 	{/if}
 {/if}
